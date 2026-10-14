@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}My Profile - ShopNexus{% endblock %}
+{% block content %}
+<div class="page-header"><div class="container"><h1><i class="bi bi-person-circle me-2"></i>My Profile</h1></div></div>
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- SIDEBAR -->
+    <div class="col-lg-3">
+      <div class="card-custom p-4 text-center mb-3">
+        {% if user.profile_picture %}
+        <img src="{{ user.profile_picture.url }}" class="rounded-circle mb-3" style="width:100px;height:100px;object-fit:cover">
+        {% else %}
+        <div class="rounded-circle bg-danger d-inline-flex align-items-center justify-content-center mb-3" style="width:100px;height:100px;font-size:2.5rem;color:#fff">{{ user.first_name.0|default:user.username.0|upper }}</div>
+        {% endif %}
+        <h5 class="fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h5>
+        <p class="text-muted small mb-3">{{ user.email }}</p>
+        <span class="badge {% if user.is_staff %}bg-danger{% else %}bg-success{% endif %}">{% if user.is_staff %}Admin{% else %}Customer{% endif %}</span>
+      </div>
+      <div class="card-custom p-3">
+        <div class="list-group list-group-flush">
+          <a href="{% url 'profile' %}" class="list-group-item list-group-item-action fw-bold text-danger border-0"><i class="bi bi-person me-2"></i>My Profile</a>
+          <a href="{% url 'edit_profile' %}" class="list-group-item list-group-item-action border-0"><i class="bi bi-pencil me-2"></i>Edit Profile</a>
+          <a href="{% url 'order_list' %}" class="list-group-item list-group-item-action border-0"><i class="bi bi-bag me-2"></i>My Orders</a>
+          <a href="{% url 'wishlist' %}" class="list-group-item list-group-item-action border-0"><i class="bi bi-heart me-2"></i>Wishlist</a>
+          <a href="{% url 'address_list' %}" class="list-group-item list-group-item-action border-0"><i class="bi bi-geo-alt me-2"></i>Addresses</a>
+          <a href="{% url 'payment_history' %}" class="list-group-item list-group-item-action border-0"><i class="bi bi-credit-card me-2"></i>Payments</a>
+          <a href="{% url 'my_reviews' %}" class="list-group-item list-group-item-action border-0"><i class="bi bi-star me-2"></i>My Reviews</a>
+          {% if user.is_staff %}<a href="/admin/" class="list-group-item list-group-item-action border-0 text-danger"><i class="bi bi-shield-lock me-2"></i>Admin Panel</a>{% endif %}
+          <a href="{% url 'logout' %}" class="list-group-item list-group-item-action border-0 text-danger"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+        </div>
+      </div>
+    </div>
+    <!-- MAIN -->
+    <div class="col-lg-9">
+      <!-- STATS -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card-custom p-4 text-center">
+            <div style="font-size:2.5rem;font-weight:800;color:#FF6B35">{{ order_count }}</div>
+            <div class="text-muted">Total Orders</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card-custom p-4 text-center">
+            <div style="font-size:2rem;font-weight:800;color:#10b981">₹{{ total_spent|floatformat:0 }}</div>
+            <div class="text-muted">Total Spent</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card-custom p-4 text-center">
+            <div style="font-size:2rem;font-weight:800;color:#3b82f6">{{ user.date_joined|date:"M Y" }}</div>
+            <div class="text-muted">Member Since</div>
+          </div>
+        </div>
+      </div>
+      <!-- INFO -->
+      <div class="card-custom p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="fw-bold mb-0">Account Information</h5>
+          <a href="{% url 'edit_profile' %}" class="btn btn-sm btn-outline-danger rounded-pill"><i class="bi bi-pencil me-1"></i>Edit</a>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6"><small class="text-muted">First Name</small><div class="fw-bold">{{ user.first_name|default:"—" }}</div></div>
+          <div class="col-md-6"><small class="text-muted">Last Name</small><div class="fw-bold">{{ user.last_name|default:"—" }}</div></div>
+          <div class="col-md-6"><small class="text-muted">Email</small><div class="fw-bold">{{ user.email }}</div></div>
+          <div class="col-md-6"><small class="text-muted">Phone</small><div class="fw-bold">{{ user.phone|default:"—" }}</div></div>
+          <div class="col-md-6"><small class="text-muted">City</small><div class="fw-bold">{{ user.city|default:"—" }}</div></div>
+          <div class="col-md-6"><small class="text-muted">Country</small><div class="fw-bold">{{ user.country|default:"—" }}</div></div>
+        </div>
+      </div>
+      <!-- RECENT ORDERS -->
+      <div class="card-custom p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="fw-bold mb-0">Recent Orders</h5>
+          <a href="{% url 'order_list' %}" class="btn btn-sm btn-outline-danger rounded-pill">View All</a>
+        </div>
+        {% if orders %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light"><tr><th>Products</th><th>Order #</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {% for order in orders %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    {% for item in order.items.all|slice:":3" %}
+                    <div class="me-n2 position-relative" style="z-index:{{ forloop.revcounter }}">
+                      {% if item.product.primary_image %}
+                      <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product_name }}" class="rounded border shadow-sm" style="width:40px;height:40px;object-fit:cover;background:#fff">
+                      {% elif item.product.image_url %}
+                      <img src="{{ item.product.image_url }}" alt="{{ item.product_name }}" class="rounded border shadow-sm" style="width:40px;height:40px;object-fit:cover;background:#fff">
+                      {% else %}
+                      <div class="rounded border bg-light d-flex align-items-center justify-content-center shadow-sm" style="width:40px;height:40px;font-size:10px">📦</div>
+                      {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% if order.items.count > 3 %}
+                    <span class="ms-3 small text-muted">+{{ order.items.count|add:"-3" }} more</span>
+                    {% endif %}
+                  </div>
+                </td>
+                <td class="fw-bold">#{{ order.order_number }}</td>
+                <td class="text-muted">{{ order.created_at|date:"M d, Y" }}</td>
+                <td>{{ order.items.count }} items</td>
+                <td class="fw-bold text-danger">₹{{ order.total_amount }}</td>
+                <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                <td><a href="{% url 'order_detail' order.pk %}" class="btn btn-sm btn-outline-secondary rounded-pill">View</a></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4"><div style="font-size:3rem">📦</div><p class="text-muted">No orders yet. <a href="{% url 'product_list' %}" class="text-danger">Start shopping!</a></p></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

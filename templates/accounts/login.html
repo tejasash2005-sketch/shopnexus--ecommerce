@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Login - ShopNexus{% endblock %}
+{% block content %}
+<div style="min-height:100vh;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;padding:60px 0">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-5 col-lg-4">
+        <div class="card-custom p-5" style="border-radius:20px">
+          <div class="text-center mb-4">
+            <a href="{% url 'home' %}" style="font-size:2rem;font-weight:800;color:#FF6B35;text-decoration:none">Shop<span style="color:#1a1a2e">Nexus</span></a>
+            <h3 class="fw-bold mt-3 mb-1">Welcome Back!</h3>
+            <p class="text-muted">Sign in to your account</p>
+          </div>
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label fw-bold small">Username</label>
+              {{ form.username }}
+              {% if form.non_field_errors %}<div class="text-danger small mt-1">{{ form.non_field_errors.0 }}</div>{% endif %}
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-bold small">Password</label>
+              {{ form.password }}
+            </div>
+            <button type="submit" class="btn btn-danger w-100 py-3 rounded-pill fw-bold fs-6" style="background:#FF6B35;border:none">Login</button>
+          </form>
+          <div class="text-center mt-4">
+            <p class="text-muted small">Don't have an account? <a href="{% url 'register' %}" class="text-danger fw-bold text-decoration-none">Sign Up Free</a></p>
+          </div>
+          <hr class="my-3">
+          <div class="text-center">
+            <small class="text-muted">Demo Admin: <strong>admin / admin123</strong></small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

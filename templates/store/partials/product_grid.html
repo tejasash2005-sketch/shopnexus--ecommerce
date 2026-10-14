@@ -1,0 +1,49 @@
+<div class="row g-4">
+{% for product in products %}
+<div class="col-6 col-md-4 col-lg-3">
+  <div class="product-card">
+    <div class="product-img-wrap">
+      {% if product.discount_price %}<span class="product-badge sale">-{{ product.discount_percent }}%</span>{% endif %}
+      {% if product.is_featured %}<span class="product-badge featured" style="left:auto;right:10px">Featured</span>{% endif %}
+      <a href="{% url 'product_detail' product.slug %}">
+        {% if product.primary_image %}
+        <img src="{{ product.primary_image.image.url }}" alt="{{ product.name }}" onerror="this.src='{{ product.image_url|default:'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80' }}'">
+        {% elif product.image_url %}
+        <img src="{{ product.image_url }}" alt="{{ product.name }}" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80'">
+        {% else %}
+        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80" alt="{{ product.name }}">
+        {% endif %}
+      </a>
+      {% if user.is_authenticated %}
+      <a href="{% url 'toggle_wishlist' product.pk %}" class="product-wishlist-btn wishlist-toggle" data-url="{% url 'toggle_wishlist' product.pk %}">
+        <i class="bi bi-heart"></i>
+      </a>
+      {% endif %}
+    </div>
+    <div class="product-card-body">
+      <div class="product-category">{{ product.category.name }}</div>
+      <div class="product-name"><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></div>
+      <div class="d-flex align-items-center gap-1 mb-2">
+        <span class="stars">{% for i in "12345" %}{% if forloop.counter <= product.average_rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+        <span style="font-size:12px;color:#94a3b8">({{ product.review_count }})</span>
+      </div>
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="price-current">₹{{ product.effective_price }}</span>
+        {% if product.discount_price %}<span class="price-original">₹{{ product.price }}</span>{% endif %}
+      </div>
+      {% if product.in_stock %}
+      <form method="post" action="{% url 'add_to_cart' product.pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="btn-add-cart"><i class="bi bi-cart-plus me-1"></i> Add to Cart</button>
+      </form>
+      {% else %}
+      <button class="btn-add-cart" disabled style="background:#e2e8f0;color:#94a3b8">Out of Stock</button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% empty %}
+<div class="col-12"><div class="empty-state"><div class="empty-state-icon">📦</div><h4>No products found</h4><p class="text-muted">Try adjusting your filters</p></div></div>
+{% endfor %}
+</div>

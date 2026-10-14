@@ -1,0 +1,115 @@
+{% extends 'dashboard/base.html' %}
+
+{% block page_title %}Advanced Analytics & Audit Logs{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Sales Reports -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b flex justify-between items-center">
+            <h3 class="font-bold text-slate-800">Historical Sales Reports</h3>
+            <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full uppercase">Financial Summary</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-500 font-bold uppercase">
+                    <tr>
+                        <th class="px-6 py-4">Date</th>
+                        <th class="px-6 py-4">Orders</th>
+                        <th class="px-6 py-4">Items Sold</th>
+                        <th class="px-6 py-4">Revenue</th>
+                        <th class="px-6 py-4">Avg Order</th>
+                        <th class="px-6 py-4">New Customers</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for report in reports %}
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="px-6 py-4 font-bold text-slate-800">{{ report.date|date:"d M Y" }}</td>
+                        <td class="px-6 py-4">{{ report.total_orders }}</td>
+                        <td class="px-6 py-4">{{ report.total_items_sold }}</td>
+                        <td class="px-6 py-4 font-bold text-emerald-600">₹{{ report.total_revenue|floatformat:0 }}</td>
+                        <td class="px-6 py-4 text-blue-600 font-medium">₹{{ report.average_order_value|floatformat:0 }}</td>
+                        <td class="px-6 py-4 font-bold text-slate-700">+{{ report.new_customers }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="px-6 py-8 text-center text-slate-400 italic">No reports generated yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Newsletter Subscribers -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b"><h3 class="font-bold text-slate-800">Newsletter Subscribers List</h3></div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {% for sub in subscribers %}
+            <div class="p-3 border rounded-xl bg-slate-50">
+                <p class="text-sm font-bold text-slate-800 truncate">{{ sub.email }}</p>
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-[9px] font-bold uppercase text-slate-400">{{ sub.source }}</span>
+                    <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase {% if sub.status == 'active' %}bg-emerald-100 text-emerald-600{% else %}bg-red-100 text-red-600{% endif %}">
+                        {{ sub.status }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Site Visits -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-900 text-white">
+                <h3 class="font-bold text-sm uppercase tracking-widest">Live Traffic Feed</h3>
+                <div class="flex gap-1">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                </div>
+            </div>
+            <div class="overflow-y-auto max-h-[400px] custom-scrollbar">
+                <table class="w-full text-left text-xs">
+                    <tbody class="divide-y divide-slate-50">
+                        {% for v in visits %}
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-3">
+                                <p class="text-blue-600 font-mono text-[10px]">{{ v.path|truncatechars:40 }}</p>
+                                <p class="text-[9px] text-slate-400 mt-0.5">{{ v.ip_address }} | {{ v.user_agent|truncatechars:30 }}</p>
+                            </td>
+                            <td class="px-6 py-3 text-right">
+                                <p class="font-bold text-slate-700">{{ v.user.username|default:"Guest" }}</p>
+                                <p class="text-[9px] text-slate-400">{{ v.created_at|timesince }} ago</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Admin Logs -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+            <div class="p-6 border-b"><h3 class="font-bold text-slate-800">Admin Activity Audit</h3></div>
+            <div class="p-6 overflow-y-auto max-h-[400px] custom-scrollbar space-y-4">
+                {% for log in logs %}
+                <div class="flex gap-4 pb-4 border-b border-slate-50 last:border-0">
+                    <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center
+                        {% if log.action_type == 'create' %}bg-emerald-50 text-emerald-600{% elif log.action_type == 'delete' %}bg-red-50 text-red-600{% else %}bg-blue-50 text-blue-600{% endif %}">
+                        <i class="fas {% if log.action_type == 'create' %}fa-plus{% elif log.action_type == 'delete' %}fa-trash{% else %}fa-edit{% endif %} text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs">
+                            <span class="font-bold text-slate-900">{{ log.admin_user.username }}</span>
+                            <span class="text-slate-500">{{ log.get_action_type_display }}</span>
+                            <span class="font-semibold text-slate-800">{{ log.model_name }}</span>
+                        </p>
+                        <p class="text-[10px] text-slate-400 mt-1 italic">"{{ log.object_repr|truncatechars:40 }}"</p>
+                        <p class="text-[9px] text-slate-400 mt-1 uppercase font-bold">{{ log.created_at|date:"d M, H:i" }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

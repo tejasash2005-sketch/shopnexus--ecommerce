@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}All Products - ShopNexus{% endblock %}
+{% block content %}
+<div class="page-header"><div class="container"><h1><i class="bi bi-grid me-2"></i>All Products</h1><p class="mb-0 mt-2 opacity-75">Discover our complete collection</p></div></div>
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- FILTERS SIDEBAR -->
+    <div class="col-lg-3">
+      <div class="card-custom p-4">
+        <h5 class="fw-bold mb-4"><i class="bi bi-funnel me-2"></i>Filters</h5>
+        <form method="get" id="filterForm">
+          <div class="mb-4">
+            <label class="form-label fw-bold">Search</label>
+            <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ search_query|default:'' }}">
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-bold">Category</label>
+            {% for cat in categories %}
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="category" value="{{ cat.slug }}" {% if selected_category == cat.slug %}checked{% endif %}>
+              <label class="form-check-label">{{ cat.name }} ({{ cat.products.count }})</label>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-bold">Brand</label>
+            {% for brand in brands %}
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="brand" value="{{ brand.pk }}" {% if selected_brand == brand.pk|stringformat:"i" %}checked{% endif %}>
+              <label class="form-check-label">{{ brand.name }}</label>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-bold">Price Range</label>
+            <div class="row g-2">
+              <div class="col-6"><input type="number" name="min_price" class="form-control form-control-sm" placeholder="Min ₹" value="{{ request.GET.min_price }}"></div>
+              <div class="col-6"><input type="number" name="max_price" class="form-control form-control-sm" placeholder="Max ₹" value="{{ request.GET.max_price }}"></div>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-bold">Sort By</label>
+            <select name="sort" class="form-select">
+              <option value="-created_at" {% if sort == '-created_at' %}selected{% endif %}>Newest First</option>
+              <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+              <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+              <option value="name" {% if sort == 'name' %}selected{% endif %}>Name A-Z</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-danger w-100 rounded-pill">Apply Filters</button>
+          <a href="{% url 'product_list' %}" class="btn btn-outline-secondary w-100 rounded-pill mt-2">Clear Filters</a>
+        </form>
+      </div>
+    </div>
+    <!-- PRODUCTS -->
+    <div class="col-lg-9">
+      <div class="d-flex justify-content-between align-items-center mb-4 card-custom p-3">
+        <span class="text-muted"><strong>{{ products.paginator.count }}</strong> products found</span>
+        <small class="text-muted">Page {{ products.number }} of {{ products.paginator.num_pages }}</small>
+      </div>
+      {% include 'store/partials/product_grid.html' with products=products %}
+      {% if products.has_other_pages %}
+      <nav class="mt-5 d-flex justify-content-center">
+        <ul class="pagination">
+          {% if products.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ products.previous_page_number }}&sort={{ sort }}&q={{ search_query|default:'' }}&category={{ selected_category|default:'' }}&brand={{ selected_brand|default:'' }}&min_price={{ request.GET.min_price|default:'' }}&max_price={{ request.GET.max_price|default:'' }}">‹</a>
+          </li>
+          {% endif %}
+
+          {% for i in products.paginator.page_range %}
+          <li class="page-item {% if i == products.number %}active{% endif %}">
+            <a class="page-link" href="?page={{ i }}&sort={{ sort }}&q={{ search_query|default:'' }}&category={{ selected_category|default:'' }}&brand={{ selected_brand|default:'' }}&min_price={{ request.GET.min_price|default:'' }}&max_price={{ request.GET.max_price|default:'' }}">{{ i }}</a>
+          </li>
+          {% endfor %}
+
+          {% if products.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ products.next_page_number }}&sort={{ sort }}&q={{ search_query|default:'' }}&category={{ selected_category|default:'' }}&brand={{ selected_brand|default:'' }}&min_price={{ request.GET.min_price|default:'' }}&max_price={{ request.GET.max_price|default:'' }}">›</a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

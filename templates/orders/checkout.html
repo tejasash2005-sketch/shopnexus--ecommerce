@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - ShopNexus{% endblock %}
+{% block content %}
+<div class="page-header"><div class="container"><h1><i class="bi bi-bag-check me-2"></i>Checkout</h1></div></div>
+<div class="container py-5">
+  <form method="post">
+    {% csrf_token %}
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <!-- SHIPPING ADDRESS -->
+        <div class="card-custom p-4 mb-4">
+          <h5 class="fw-bold mb-4"><i class="bi bi-geo-alt me-2 text-danger"></i>Shipping Address</h5>
+          {% if addresses %}
+          <div class="row g-3">
+            {% for addr in addresses %}
+            <div class="col-md-6">
+              <div class="border rounded-3 p-3 {% if default_address.pk == addr.pk %}border-danger{% endif %}" style="cursor:pointer" onclick="document.getElementById('addr_{{ addr.pk }}').checked=true;document.querySelectorAll('.addr-card').forEach(c=>c.classList.remove('border-danger'));this.classList.add('border-danger')">
+                <input type="radio" name="address_id" id="addr_{{ addr.pk }}" value="{{ addr.pk }}" {% if default_address.pk == addr.pk %}checked{% endif %} class="d-none">
+                {% if addr.is_default %}<span class="badge mb-2" style="background:#FF6B35;font-size:10px">Default</span>{% endif %}
+                <div class="fw-bold">{{ addr.full_name }}</div>
+                <div class="text-muted small">{{ addr.phone }}</div>
+                <div class="text-muted small">{{ addr.address_line1 }}, {{ addr.city }}, {{ addr.state }} - {{ addr.zip_code }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <a href="{% url 'add_address' %}" class="btn btn-outline-danger btn-sm mt-3 rounded-pill"><i class="bi bi-plus"></i> Add New Address</a>
+          {% else %}
+          <p class="text-muted mb-3">No saved addresses. Add one below:</p>
+          <div class="row g-3">
+            <div class="col-md-6">{{ address_form.full_name.label_tag }}{{ address_form.full_name }}</div>
+            <div class="col-md-6">{{ address_form.phone.label_tag }}{{ address_form.phone }}</div>
+            <div class="col-12">{{ address_form.address_line1.label_tag }}{{ address_form.address_line1 }}</div>
+            <div class="col-md-4">{{ address_form.city.label_tag }}{{ address_form.city }}</div>
+            <div class="col-md-4">{{ address_form.state.label_tag }}{{ address_form.state }}</div>
+            <div class="col-md-4">{{ address_form.zip_code.label_tag }}{{ address_form.zip_code }}</div>
+          </div>
+          {% endif %}
+        </div>
+        <!-- PAYMENT METHOD -->
+        <div class="card-custom p-4">
+          <h5 class="fw-bold mb-4"><i class="bi bi-credit-card me-2 text-danger"></i>Payment Method</h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="border rounded-3 p-3 d-flex align-items-center gap-3" style="cursor:pointer">
+                <input type="radio" name="payment_method" value="cod" checked class="form-check-input">
+                <span style="font-size:1.5rem">💰</span>
+                <div><div class="fw-bold">Cash on Delivery</div><div class="text-muted small">Pay when you receive</div></div>
+              </label>
+            </div>
+            <div class="col-md-6">
+              <label class="border rounded-3 p-3 d-flex align-items-center gap-3" style="cursor:pointer">
+                <input type="radio" name="payment_method" value="stripe" class="form-check-input">
+                <span style="font-size:1.5rem">💳</span>
+                <div><div class="fw-bold">Credit/Debit Card</div><div class="text-muted small">Powered by Stripe</div></div>
+              </label>
+            </div>
+            <div class="col-md-6">
+              <label class="border rounded-3 p-3 d-flex align-items-center gap-3" style="cursor:pointer">
+                <input type="radio" name="payment_method" value="upi" class="form-check-input">
+                <span style="font-size:1.5rem">📱</span>
+                <div><div class="fw-bold">UPI</div><div class="text-muted small">Google Pay, PhonePe, Paytm</div></div>
+              </label>
+            </div>
+            <div class="col-md-6">
+              <label class="border rounded-3 p-3 d-flex align-items-center gap-3" style="cursor:pointer">
+                <input type="radio" name="payment_method" value="netbanking" class="form-check-input">
+                <span style="font-size:1.5rem">🏦</span>
+                <div><div class="fw-bold">Net Banking</div><div class="text-muted small">All major banks</div></div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ORDER SUMMARY -->
+      <div class="col-lg-4">
+        <div class="card-custom p-4" style="position:sticky;top:80px">
+          <h5 class="fw-bold mb-4">Order Summary</h5>
+          {% for item in cart.items.all %}
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex gap-2 align-items-center">
+              <span class="badge bg-secondary">{{ item.quantity }}x</span>
+              <span class="small">{{ item.product.name|truncatechars:25 }}</span>
+            </div>
+            <span class="fw-bold small">₹{{ item.subtotal }}</span>
+          </div>
+          {% endfor %}
+          <hr>
+          <div class="d-flex justify-content-between mb-1"><span class="text-muted">Subtotal</span><span>₹{{ cart.subtotal }}</span></div>
+          {% if cart.discount_amount > 0 %}<div class="d-flex justify-content-between mb-1"><span class="text-muted">Discount</span><span class="text-success">-₹{{ cart.discount_amount|floatformat:2 }}</span></div>{% endif %}
+          <div class="d-flex justify-content-between mb-1"><span class="text-muted">Shipping</span><span>{% if cart.subtotal >= 500 %}FREE{% else %}₹50{% endif %}</span></div>
+          <div class="d-flex justify-content-between mb-1"><span class="text-muted">GST (18%)</span><span>~₹{% widthratio cart.total 100 18 %}</span></div>
+          <hr>
+          <div class="d-flex justify-content-between mb-4"><span class="fw-bold fs-5">Total</span><span class="fw-bold fs-5 text-danger">₹{{ cart.total|floatformat:2 }}</span></div>
+          <button type="submit" class="btn btn-danger w-100 btn-lg rounded-pill fw-bold" style="background:#FF6B35;border:none">
+            <i class="bi bi-lock me-2"></i>Place Order
+          </button>
+          <div class="text-center mt-3"><small class="text-muted"><i class="bi bi-shield-check me-1 text-success"></i>Secure & encrypted checkout</small></div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

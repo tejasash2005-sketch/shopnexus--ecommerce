@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Shopping Cart - ShopNexus{% endblock %}
+{% block content %}
+<div class="page-header"><div class="container"><h1><i class="bi bi-cart3 me-2"></i>Shopping Cart</h1></div></div>
+<div class="container py-5">
+{% if cart.items.all %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    {% for item in cart.items.all %}
+    <div class="card-custom p-4 mb-3 d-flex gap-3 align-items-center flex-wrap">
+      <div style="width:90px;height:90px;flex-shrink:0">
+        {% if item.product.primary_image %}
+        <img src="{{ item.product.primary_image.image.url }}" class="w-100 h-100 rounded-2" style="object-fit:cover">
+        {% elif item.product.image_url %}
+        <img src="{{ item.product.image_url }}" class="w-100 h-100 rounded-2" style="object-fit:cover">
+        {% else %}<div class="w-100 h-100 bg-light rounded-2 d-flex align-items-center justify-content-center" style="font-size:2.5rem">🛍️</div>{% endif %}
+      </div>
+      <div class="flex-grow-1">
+        <div class="fw-bold">{{ item.product.name }}</div>
+        <div class="text-muted small">{{ item.product.category.name }}</div>
+        <div class="text-danger fw-bold mt-1">₹{{ item.product.effective_price }}</div>
+        {% if item.product.stock < 5 %}<div class="text-warning small"><i class="bi bi-exclamation-triangle me-1"></i>Only {{ item.product.stock }} left</div>{% endif %}
+      </div>
+      <form method="post" action="{% url 'update_cart' item.pk %}" class="d-flex align-items-center gap-2">
+        {% csrf_token %}
+        <div class="d-flex align-items-center border rounded-3 overflow-hidden">
+          <button type="button" onclick="let q=this.nextElementSibling;if(q.value>1){q.value--;this.closest('form').submit()}" class="btn btn-light px-2 border-0">−</button>
+          <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="form-control border-0 text-center" style="width:60px">
+          <button type="button" onclick="let q=this.previousElementSibling;let max=parseInt(q.getAttribute('max'));if(parseInt(q.value)<max){q.value++;this.closest('form').submit()}" class="btn btn-light px-2 border-0">+</button>
+        </div>
+        <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill">Update</button>
+      </form>
+      <div class="text-end">
+        <div class="fw-bold fs-5">₹{{ item.subtotal }}</div>
+        <a href="{% url 'remove_from_cart' item.pk %}" class="btn btn-sm btn-outline-danger mt-1 rounded-pill" onclick="return confirm('Remove item?')">
+          <i class="bi bi-trash"></i> Remove
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+    <div class="card-custom p-3">
+      <h6 class="fw-bold mb-3">Apply Coupon</h6>
+      <form method="post" action="{% url 'apply_coupon' %}" class="d-flex gap-2">
+        {% csrf_token %}
+        <input type="text" name="coupon_code" class="form-control" placeholder="Enter coupon code" {% if cart.coupon %}value="{{ cart.coupon.code }}"{% endif %}>
+        <button type="submit" class="btn btn-outline-danger px-4 rounded-pill">Apply</button>
+        {% if cart.coupon %}<a href="{% url 'remove_coupon' %}" class="btn btn-outline-secondary rounded-pill">Remove</a>{% endif %}
+      </form>
+      {% if cart.coupon %}<div class="alert alert-success mt-2 py-2 mb-0"><i class="bi bi-check-circle me-1"></i>Coupon "{{ cart.coupon.code }}" applied! You save ₹{{ cart.discount_amount|floatformat:2 }}</div>{% endif %}
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card-custom p-4" style="position:sticky;top:80px">
+      <h5 class="fw-bold mb-4">Order Summary</h5>
+      <div class="d-flex justify-content-between mb-2"><span class="text-muted">Subtotal ({{ cart.total_items }} items)</span><span class="fw-bold">₹{{ cart.subtotal }}</span></div>
+      {% if cart.discount_amount > 0 %}<div class="d-flex justify-content-between mb-2"><span class="text-muted">Coupon Discount</span><span class="text-success fw-bold">-₹{{ cart.discount_amount|floatformat:2 }}</span></div>{% endif %}
+      <div class="d-flex justify-content-between mb-2"><span class="text-muted">Shipping</span><span class="{% if cart.subtotal >= 500 %}text-success fw-bold{% endif %}">{% if cart.subtotal >= 500 %}FREE{% else %}₹50{% endif %}</span></div>
+      {% if cart.subtotal < 500 %}<div class="small text-muted mb-2">Add ₹{{ free_shipping_remaining }} more for free shipping</div>{% endif %}
+      <hr>
+      <div class="d-flex justify-content-between mb-4"><span class="fw-bold fs-5">Total</span><span class="fw-bold fs-5 text-danger">₹{{ cart.total|floatformat:2 }}</span></div>
+      {% if user.is_authenticated %}
+      <a href="{% url 'checkout' %}" class="btn btn-danger w-100 btn-lg rounded-pill fw-bold" style="background:#FF6B35;border:none">Proceed to Checkout <i class="bi bi-arrow-right"></i></a>
+      {% else %}
+      <a href="{% url 'login' %}?next={% url 'checkout' %}" class="btn btn-danger w-100 btn-lg rounded-pill fw-bold" style="background:#FF6B35;border:none">Login to Checkout</a>
+      {% endif %}
+      <a href="{% url 'product_list' %}" class="btn btn-outline-secondary w-100 mt-2 rounded-pill">Continue Shopping</a>
+      <div class="text-center mt-3"><small class="text-muted"><i class="bi bi-shield-check me-1 text-success"></i>Secure checkout guaranteed</small></div>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-state-icon">🛒</div>
+  <h3 class="fw-bold">Your cart is empty</h3>
+  <p class="text-muted mb-4">Looks like you haven't added anything yet!</p>
+  <a href="{% url 'product_list' %}" class="btn btn-danger btn-lg px-5 rounded-pill" style="background:#FF6B35;border:none">Start Shopping</a>
+</div>
+{% endif %}
+</div>
+{% endblock %}

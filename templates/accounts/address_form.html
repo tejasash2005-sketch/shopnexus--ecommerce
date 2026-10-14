@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - ShopNexus{% endblock %}
+{% block content %}
+<div class="page-header"><div class="container"><h1><i class="bi bi-geo-alt me-2"></i>{{ title }}</h1></div></div>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card-custom p-5">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label fw-bold small">Address Type</label>{{ form.address_type }}</div>
+            <div class="col-md-6"><label class="form-label fw-bold small">Full Name</label>{{ form.full_name }}</div>
+            <div class="col-12"><label class="form-label fw-bold small">Phone</label>{{ form.phone }}</div>
+            <div class="col-12"><label class="form-label fw-bold small">Address Line 1</label>{{ form.address_line1 }}</div>
+            <div class="col-12"><label class="form-label fw-bold small">Address Line 2 (optional)</label>{{ form.address_line2 }}</div>
+            <div class="col-md-6"><label class="form-label fw-bold small">City</label>{{ form.city }}</div>
+            <div class="col-md-6"><label class="form-label fw-bold small">State</label>{{ form.state }}</div>
+            <div class="col-md-6"><label class="form-label fw-bold small">ZIP Code</label>{{ form.zip_code }}</div>
+            <div class="col-md-6"><label class="form-label fw-bold small">Country</label>{{ form.country }}</div>
+            <div class="col-12"><div class="form-check">{{ form.is_default }}<label class="form-check-label">Set as default address</label></div></div>
+          </div>
+          <div class="d-flex gap-3 mt-4">
+            <button type="submit" class="btn btn-danger px-5 rounded-pill fw-bold" style="background:#FF6B35;border:none">Save Address</button>
+            <a href="{% url 'address_list' %}" class="btn btn-outline-secondary px-5 rounded-pill">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopNexus | Professional Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .module-card:hover { transform: translateY(-4px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="flex bg-slate-50 min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex-shrink-0 hidden md:flex flex-col">
+        <div class="p-6">
+            <h1 class="text-white text-2xl font-bold flex items-center gap-2">
+                <i class="fas fa-shopping-cart text-blue-500"></i> ShopNexus
+            </h1>
+            <p class="text-xs text-slate-500 mt-1 uppercase tracking-widest font-semibold">Admin Professional</p>
+        </div>
+
+        <nav class="flex-1 px-4 py-4 space-y-1">
+            <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-4 py-3 text-white bg-blue-600 rounded-lg">
+                <i class="fas fa-th-large w-5"></i> Dashboard
+            </a>
+            <div class="pt-4 pb-2 px-4 text-xs font-semibold text-slate-500 uppercase">Modules</div>
+            <a href="/admin/accounts/customuser/" class="flex items-center gap-3 px-4 py-2 hover:bg-slate-800 rounded-lg transition">
+                <i class="fas fa-users w-5"></i> Accounts
+            </a>
+            <a href="/admin/store/product/" class="flex items-center gap-3 px-4 py-2 hover:bg-slate-800 rounded-lg transition">
+                <i class="fas fa-store w-5"></i> Store
+            </a>
+            <a href="/admin/orders/order/" class="flex items-center gap-3 px-4 py-2 hover:bg-slate-800 rounded-lg transition">
+                <i class="fas fa-truck w-5"></i> Orders
+            </a>
+            <a href="/admin/payments/payment/" class="flex items-center gap-3 px-4 py-2 hover:bg-slate-800 rounded-lg transition">
+                <i class="fas fa-credit-card w-5"></i> Payments
+            </a>
+            <a href="/admin/reviews/review/" class="flex items-center gap-3 px-4 py-2 hover:bg-slate-800 rounded-lg transition">
+                <i class="fas fa-star w-5"></i> Reviews
+            </a>
+            <a href="/admin/wishlist/wishlist/" class="flex items-center gap-3 px-4 py-2 hover:bg-slate-800 rounded-lg transition">
+                <i class="fas fa-heart w-5"></i> Wishlist
+            </a>
+            <a href="/admin/analytics/salesreport/" class="flex items-center gap-3 px-4 py-2 hover:bg-slate-800 rounded-lg transition">
+                <i class="fas fa-chart-line w-5"></i> Analytics
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800">
+            <a href="/admin/logout/" class="flex items-center gap-3 px-4 py-2 hover:bg-red-900/30 hover:text-red-400 rounded-lg transition">
+                <i class="fas fa-sign-out-alt w-5"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- Header -->
+        <header class="h-16 bg-white border-b flex items-center justify-between px-8">
+            <div class="flex items-center gap-4">
+                <h2 class="text-xl font-bold text-slate-800">Overview</h2>
+                <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded font-medium">v2.0 Professional</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="relative">
+                    <i class="far fa-bell text-slate-400 text-xl cursor-pointer"></i>
+                    {% if low_stock_count > 0 %}
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">{{ low_stock_count }}</span>
+                    {% endif %}
+                </div>
+                <div class="flex items-center gap-3 border-l pl-6">
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-slate-700">{{ request.user.get_full_name|default:request.user.username }}</p>
+                        <p class="text-xs text-slate-500">Super Admin</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+                        {{ request.user.username|make_list|first|upper }}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Scrollable Body -->
+        <div class="flex-1 overflow-y-auto p-8">
+
+            <!-- Quick Stats Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-slate-500 text-sm font-medium">Total Revenue</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-1">₹{{ total_revenue|floatformat:0 }}</h3>
+                        </div>
+                        <div class="bg-emerald-50 p-3 rounded-xl text-emerald-600">
+                            <i class="fas fa-indian-rupee-sign text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-emerald-600 text-sm font-medium">
+                        <i class="fas fa-arrow-up mr-1"></i> 12.5% <span class="text-slate-400 ml-2 font-normal">vs last month</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-slate-500 text-sm font-medium">Active Orders</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ pending_orders }}</h3>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded-xl text-blue-600">
+                            <i class="fas fa-shopping-bag text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-blue-600 text-sm font-medium">
+                        <i class="fas fa-clock mr-1"></i> Pending Processing
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-slate-500 text-sm font-medium">Total Customers</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ total_users }}</h3>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded-xl text-purple-600">
+                            <i class="fas fa-users text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-purple-600 text-sm font-medium">
+                        <i class="fas fa-plus mr-1"></i> {{ new_users_today }} <span class="text-slate-400 ml-2 font-normal">joined today</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-slate-500 text-sm font-medium">Avg Rating</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ avg_rating }} / 5.0</h3>
+                        </div>
+                        <div class="bg-amber-50 p-3 rounded-xl text-amber-600">
+                            <i class="fas fa-star text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-amber-600 text-sm font-medium">
+                        <i class="fas fa-comment mr-1"></i> {{ pending_reviews }} <span class="text-slate-400 ml-2 font-normal">new reviews</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modules Grid -->
+            <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <i class="fas fa-cubes text-blue-500"></i> Admin Modules
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+                <!-- 1. Accounts -->
+                <div class="module-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md">
+                    <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white mb-4">
+                        <i class="fas fa-user-shield text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg">Accounts</h4>
+                    <p class="text-sm text-slate-500 mt-1 mb-4">Manage users, staff, and customer addresses.</p>
+                    <div class="space-y-2 mb-6">
+                        <div class="flex justify-between text-xs font-medium">
+                            <span class="text-slate-400 uppercase">Active Users</span>
+                            <span class="text-slate-900">{{ active_users }}</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-1.5">
+                            <div class="bg-blue-600 h-1.5 rounded-full" style="width: {% widthratio active_users total_users 100 %}%"></div>
+                        </div>
+                    </div>
+                    <a href="/admin/accounts/customuser/" class="block text-center py-2 px-4 bg-slate-50 hover:bg-blue-50 text-blue-600 font-semibold rounded-lg text-sm transition">
+                        Open Module
+                    </a>
+                </div>
+
+                <!-- 2. Store -->
+                <div class="module-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md">
+                    <div class="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center text-white mb-4">
+                        <i class="fas fa-box-open text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg">Store Admin</h4>
+                    <p class="text-sm text-slate-500 mt-1 mb-4">Products, Categories, Brands & Inventory.</p>
+                    <div class="flex gap-4 mb-6">
+                        <div class="bg-slate-50 flex-1 p-2 rounded-lg text-center">
+                            <p class="text-xs text-slate-400 font-medium uppercase">Products</p>
+                            <p class="font-bold text-slate-800">{{ total_products }}</p>
+                        </div>
+                        <div class="bg-slate-50 flex-1 p-2 rounded-lg text-center">
+                            <p class="text-xs text-slate-400 font-medium uppercase">Abandoned</p>
+                            <p class="font-bold text-slate-800">{{ abandoned_carts }}</p>
+                        </div>
+                    </div>
+                    <a href="/admin/store/product/" class="block text-center py-2 px-4 bg-slate-50 hover:bg-emerald-50 text-emerald-600 font-semibold rounded-lg text-sm transition">
+                        Manage Catalog
+                    </a>
+                </div>
+
+                <!-- 3. Orders -->
+                <div class="module-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md">
+                    <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white mb-4">
+                        <i class="fas fa-truck-loading text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg">Orders</h4>
+                    <p class="text-sm text-slate-500 mt-1 mb-4">Fulfillment, Status Updates & Returns.</p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-500">Total Orders</span>
+                            <span class="bg-slate-100 px-2 py-0.5 rounded text-xs font-bold text-slate-700">{{ total_orders }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-500">Return Requests</span>
+                            <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded text-xs font-bold">{{ total_returns }}</span>
+                        </div>
+                    </div>
+                    <a href="/admin/orders/order/" class="block text-center py-2 px-4 bg-slate-50 hover:bg-orange-50 text-orange-600 font-semibold rounded-lg text-sm transition">
+                        View Orders
+                    </a>
+                </div>
+
+                <!-- 4. Payments -->
+                <div class="module-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white mb-4">
+                        <i class="fas fa-wallet text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg">Payments</h4>
+                    <p class="text-sm text-slate-500 mt-1 mb-4">Transactions, Gateways & Refund Logs.</p>
+                    <div class="mb-6">
+                        <div class="bg-indigo-50 p-3 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                <span class="text-xs font-bold text-indigo-700">Stripe Gateway: Active</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/admin/payments/payment/" class="block text-center py-2 px-4 bg-slate-50 hover:bg-indigo-50 text-indigo-600 font-semibold rounded-lg text-sm transition">
+                        Transactions
+                    </a>
+                </div>
+
+                <!-- 5. Reviews -->
+                <div class="module-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md">
+                    <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center text-white mb-4">
+                        <i class="fas fa-comments text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg">Reviews</h4>
+                    <p class="text-sm text-slate-500 mt-1 mb-4">Moderation & Helpful Vote Analytics.</p>
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="flex -space-x-2">
+                            <div class="w-8 h-8 rounded-full border-2 border-white bg-slate-200"></div>
+                            <div class="w-8 h-8 rounded-full border-2 border-white bg-slate-300"></div>
+                            <div class="w-8 h-8 rounded-full border-2 border-white bg-slate-400 flex items-center justify-center text-[10px] text-white font-bold">+{{ pending_reviews }}</div>
+                        </div>
+                        <span class="text-xs text-slate-500 font-medium">Waiting approval</span>
+                    </div>
+                    <a href="/admin/reviews/review/" class="block text-center py-2 px-4 bg-slate-50 hover:bg-amber-50 text-amber-600 font-semibold rounded-lg text-sm transition">
+                        Review Moderation
+                    </a>
+                </div>
+
+                <!-- 6. Wishlist -->
+                <div class="module-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md">
+                    <div class="w-12 h-12 bg-pink-600 rounded-xl flex items-center justify-center text-white mb-4">
+                        <i class="fas fa-heart text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg">Wishlists</h4>
+                    <p class="text-sm text-slate-500 mt-1 mb-4">Customer interest & item popularity.</p>
+                    <div class="bg-pink-50 p-3 rounded-xl mb-6 flex items-center justify-center gap-2">
+                        <span class="text-xl font-bold text-pink-600">{{ total_wishlists }}</span>
+                        <span class="text-xs text-pink-400 uppercase font-bold tracking-tighter">Items in lists</span>
+                    </div>
+                    <a href="/admin/wishlist/wishlist/" class="block text-center py-2 px-4 bg-slate-50 hover:bg-pink-50 text-pink-600 font-semibold rounded-lg text-sm transition">
+                        View Analytics
+                    </a>
+                </div>
+
+                <!-- 7. Analytics -->
+                <div class="module-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md">
+                    <div class="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-white mb-4">
+                        <i class="fas fa-chart-pie text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg">Analytics</h4>
+                    <p class="text-sm text-slate-500 mt-1 mb-4">Reports, Logs & Low Stock Alerts.</p>
+                    <div class="space-y-2 mb-6 text-[11px] font-bold text-slate-600 uppercase tracking-tighter">
+                        <div class="flex items-center gap-2 text-red-500">
+                            <i class="fas fa-exclamation-triangle"></i> {{ low_stock_count }} Stock Alerts
+                        </div>
+                        <div class="flex items-center gap-2 text-blue-600">
+                            <i class="fas fa-eye"></i> {{ site_visits_today }} Visits Today
+                        </div>
+                    </div>
+                    <a href="/admin/analytics/salesreport/" class="block text-center py-2 px-4 bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold rounded-lg text-sm transition">
+                        Advanced Reports
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Recent Activities -->
+                <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-6 border-b flex justify-between items-center">
+                        <h4 class="font-bold text-slate-800">Recent Admin Activity</h4>
+                        <a href="/admin/analytics/adminactivitylog/" class="text-blue-600 text-xs font-bold hover:underline">View All</a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold">
+                                <tr>
+                                    <th class="px-6 py-3">Admin</th>
+                                    <th class="px-6 py-3">Action</th>
+                                    <th class="px-6 py-3">Object</th>
+                                    <th class="px-6 py-3">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm divide-y">
+                                {% for log in recent_activities %}
+                                <tr>
+                                    <td class="px-6 py-4 font-semibold text-slate-700">{{ log.admin_user.username }}</td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 py-1 rounded text-[10px] font-bold uppercase
+                                            {% if log.action_type == 'create' %}bg-emerald-100 text-emerald-700
+                                            {% elif log.action_type == 'delete' %}bg-red-100 text-red-700
+                                            {% else %}bg-blue-100 text-blue-700{% endif %}">
+                                            {{ log.get_action_type_display }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-slate-500">{{ log.object_repr|truncatechars:30 }}</td>
+                                    <td class="px-6 py-4 text-xs text-slate-400">{{ log.created_at|timesince }} ago</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="px-6 py-8 text-center text-slate-400 italic">No recent activity logs found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <h4 class="font-bold text-slate-800 mb-4">Newsletter Stats</h4>
+                        <div class="flex items-end gap-2">
+                            <span class="text-3xl font-bold text-slate-900">{{ subscribers }}</span>
+                            <span class="text-sm text-slate-500 mb-1">Active Subscribers</span>
+                        </div>
+                        <div class="mt-6">
+                             <a href="/admin/analytics/newslettersubscriber/" class="text-xs text-blue-600 font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                                Manage List <i class="fas fa-arrow-right"></i>
+                             </a>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-6 rounded-2xl shadow-lg text-white">
+                        <h4 class="font-bold text-slate-100 mb-1 text-sm">System Health</h4>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-4">Real-time status</p>
+
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs">Database</span>
+                                <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold">ONLINE</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs">Stripe API</span>
+                                <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold">ACTIVE</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs">Email SMTP</span>
+                                <span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold">WARNING</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>

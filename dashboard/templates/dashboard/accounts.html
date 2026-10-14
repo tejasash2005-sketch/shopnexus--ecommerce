@@ -1,0 +1,75 @@
+{% extends 'dashboard/base.html' %}
+
+{% block page_title %}Account Management{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- User Management -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b"><h3 class="font-bold text-slate-800">Customers & Staff</h3></div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase font-bold">
+                    <tr>
+                        <th class="px-6 py-4">User</th>
+                        <th class="px-6 py-4">Contact</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4">Newsletter</th>
+                        <th class="px-6 py-4">Role</th>
+                        <th class="px-6 py-4 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for user in users %}
+                    <tr class="hover:bg-slate-50 transition text-sm">
+                        <td class="px-6 py-4 font-bold text-slate-800">{{ user.username }}</td>
+                        <td class="px-6 py-4 text-slate-500">{{ user.email }}<br><small>{{ user.phone }}</small></td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase {% if user.is_active %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                {% if user.is_active %}Active{% else %}Deactivated{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if user.newsletter_subscribed %}<span class="text-emerald-600 font-bold text-xs">Subscribed</span>{% else %}<span class="text-slate-300 text-xs">No</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if user.is_superuser %}<span class="text-purple-600 font-bold">Admin</span>
+                            {% elif user.is_staff %}<span class="text-blue-600 font-semibold">Staff</span>
+                            {% else %}<span class="text-slate-500">Customer</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex justify-center gap-2">
+                                <a href="{% url 'toggle_user_status' user.pk %}" class="p-2 {% if user.is_active %}text-red-500 hover:bg-red-50{% else %}text-emerald-500 hover:bg-emerald-50{% endif %} rounded-lg transition" title="Toggle Status">
+                                    <i class="fas {% if user.is_active %}fa-user-slash{% else %}fa-user-check{% endif %}"></i>
+                                </a>
+                                <a href="{% url 'toggle_newsletter' user.pk %}" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition" title="Toggle Newsletter">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Addresses -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b"><h3 class="font-bold text-slate-800">Customer Addresses</h3></div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for addr in addresses %}
+            <div class="p-4 border rounded-xl bg-slate-50/50">
+                <div class="flex justify-between mb-2">
+                    <span class="text-[10px] font-bold uppercase px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">{{ addr.get_address_type_display }}</span>
+                    {% if addr.is_default %}<span class="text-[10px] font-bold uppercase px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">Default</span>{% endif %}
+                </div>
+                <p class="text-sm font-bold text-slate-800">{{ addr.full_name }}</p>
+                <p class="text-xs text-slate-500">{{ addr.address_line1 }}, {{ addr.city }}, {{ addr.state }}</p>
+                <p class="text-[10px] text-slate-400 mt-2">Owner: {{ addr.user.username }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

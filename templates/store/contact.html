@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us - ShopNexus{% endblock %}
+{% block content %}
+<div class="page-header"><div class="container text-center"><h1 class="fw-bold">Contact Us</h1><p class="opacity-75">We're here to help! Reach out anytime.</p></div></div>
+<div class="container py-5">
+  <div class="row g-5">
+    <div class="col-lg-5">
+      <h3 class="fw-bold mb-4">Get in Touch</h3>
+      <div class="d-flex gap-3 mb-4"><div style="width:50px;height:50px;background:rgba(255,107,53,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">📍</div><div><h6 class="fw-bold mb-1">Address</h6><p class="text-muted mb-0">123 MG Road, Bangalore, Karnataka - 560001</p></div></div>
+      <div class="d-flex gap-3 mb-4"><div style="width:50px;height:50px;background:rgba(255,107,53,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">📞</div><div><h6 class="fw-bold mb-1">Phone</h6><p class="text-muted mb-0">+91 98765 43210</p><p class="text-muted mb-0">Mon–Sat, 9AM–6PM</p></div></div>
+      <div class="d-flex gap-3 mb-4"><div style="width:50px;height:50px;background:rgba(255,107,53,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">✉️</div><div><h6 class="fw-bold mb-1">Email</h6><p class="text-muted mb-0">support@shopnexus.com</p></div></div>
+    </div>
+    <div class="col-lg-7">
+      <div class="card-custom p-5">
+        <h4 class="fw-bold mb-4">Send a Message</h4>
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label fw-bold small">Your Name</label><input type="text" class="form-control" placeholder="John Doe" required></div>
+            <div class="col-md-6"><label class="form-label fw-bold small">Email</label><input type="email" class="form-control" placeholder="john@example.com" required></div>
+            <div class="col-12"><label class="form-label fw-bold small">Subject</label><input type="text" class="form-control" placeholder="How can we help?" required></div>
+            <div class="col-12"><label class="form-label fw-bold small">Message</label><textarea class="form-control" rows="5" placeholder="Write your message here..." required></textarea></div>
+            <div class="col-12"><button type="submit" class="btn btn-danger px-5 rounded-pill fw-bold py-3" style="background:#FF6B35;border:none">Send Message <i class="bi bi-send ms-1"></i></button></div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

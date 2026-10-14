@@ -1,0 +1,47 @@
+{% extends 'dashboard/base.html' %}
+
+{% block page_title %}Customer Reviews{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="p-6 border-b"><h3 class="font-bold text-slate-800">Review Moderation</h3></div>
+
+    <div class="p-6 space-y-6">
+        {% for r in reviews %}
+        <div class="p-6 border rounded-2xl hover:border-blue-200 transition bg-slate-50/50">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex gap-4">
+                    <div class="w-12 h-12 bg-white rounded-xl border flex items-center justify-center text-slate-400">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-slate-800">{{ r.user.username }}</h5>
+                        <div class="flex text-amber-400 text-xs mt-1">
+                            {% for i in "12345"|make_list %}
+                                <i class="fas fa-star {% if forloop.counter > r.rating %}text-slate-200{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-slate-400 font-medium">{{ r.created_at|date:"d M Y" }}</p>
+                    {% if not r.is_approved %}
+                    <a href="{% url 'approve_review' r.pk %}" class="mt-2 inline-block bg-emerald-600 text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase hover:bg-emerald-700 transition">Approve</a>
+                    {% else %}
+                    <span class="mt-2 inline-block bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-[10px] font-bold uppercase">Approved</span>
+                    {% endif %}
+                </div>
+            </div>
+            <h6 class="font-bold text-slate-700 text-sm mb-2">{{ r.title }}</h6>
+            <p class="text-sm text-slate-600 leading-relaxed">{{ r.body }}</p>
+            <div class="mt-4 pt-4 border-t flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-400 uppercase">Product: <span class="text-blue-600">{{ r.product.name }}</span></span>
+                <span class="text-xs text-slate-400"><i class="fas fa-thumbs-up mr-1"></i> {{ r.helpful_count }} Helpful</span>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center text-slate-400 py-12">No reviews yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

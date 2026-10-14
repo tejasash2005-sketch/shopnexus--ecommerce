@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}My Wishlist - ShopNexus{% endblock %}
+{% block content %}
+<div class="page-header"><div class="container"><h1><i class="bi bi-heart me-2"></i>My Wishlist</h1></div></div>
+<div class="container py-5">
+  {% if wishlist.products.all %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-bold mb-0">{{ wishlist.item_count }} Item{{ wishlist.item_count|pluralize }} in Wishlist</h5>
+    <a href="{% url 'clear_wishlist' %}" class="btn btn-outline-danger btn-sm rounded-pill" onclick="return confirm('Clear all wishlist items?')"><i class="bi bi-trash me-1"></i>Clear All</a>
+  </div>
+  {% include 'store/partials/product_grid.html' with products=wishlist.products.all %}
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">💝</div>
+    <h3 class="fw-bold">Your wishlist is empty</h3>
+    <p class="text-muted mb-4">Save products you love for later!</p>
+    <a href="{% url 'product_list' %}" class="btn btn-danger btn-lg px-5 rounded-pill" style="background:#FF6B35;border:none">Explore Products</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

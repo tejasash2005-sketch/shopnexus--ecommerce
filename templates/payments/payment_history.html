@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Payment History - ShopNexus{% endblock %}
+{% block content %}
+<div class="page-header"><div class="container"><h1><i class="bi bi-receipt me-2"></i>Payment History</h1></div></div>
+<div class="container py-5">
+  {% if payments %}
+  <div class="card-custom">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light"><tr><th>Transaction ID</th><th>Order</th><th>Gateway</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for payment in payments %}
+          <tr>
+            <td class="font-monospace small">{{ payment.transaction_id|truncatechars:20 }}</td>
+            <td><a href="{% url 'order_detail' payment.order.pk %}" class="text-danger text-decoration-none fw-bold">#{{ payment.order.order_number }}</a></td>
+            <td><span class="badge bg-secondary">{{ payment.get_gateway_display }}</span></td>
+            <td class="fw-bold">₹{{ payment.amount }}</td>
+            <td><span class="status-badge status-{{ payment.status }}">{{ payment.get_status_display }}</span></td>
+            <td class="text-muted">{{ payment.created_at|date:"M d, Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="empty-state-icon">💳</div><h3 class="fw-bold">No payment history</h3><p class="text-muted">Your payments will appear here.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    /* Professional Admin Theme Tweaks */
+    :root {
+        --primary: #3b82f6;
+        --primary-dark: #1d4ed8;
+        --secondary: #64748b;
+    }
+    #header { background: #0f172a !important; padding: 10px 40px !important; }
+    #branding h1 { color: #f8fafc !important; font-weight: 700 !important; }
+    .module h2, .module caption, .inline-group h2 { background: #f1f5f9 !important; color: #334155 !important; font-weight: 700 !important; }
+    div.breadcrumbs { background: #fff !important; border-bottom: 1px solid #e2e8f0 !important; padding: 10px 40px !important; }
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: var(--primary) !important;
+        border-radius: 6px !important;
+        padding: 8px 20px !important;
+        font-weight: 600 !important;
+        transition: all 0.2s !important;
+    }
+    .button:hover { background: var(--primary-dark) !important; }
+    #content { padding: 30px 40px !important; }
+    .card, .module { border: 1px solid #e2e8f0 !important; border-radius: 12px !important; overflow: hidden !important; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1) !important; }
+
+    /* Navigation Link at Top */
+    .dashboard-link-nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255,255,255,0.1);
+        padding: 6px 14px;
+        border-radius: 8px;
+        color: white !important;
+        text-decoration: none !important;
+        font-size: 13px;
+        margin-right: 20px;
+        transition: background 0.2s;
+    }
+    .dashboard-link-nav:hover { background: rgba(255,255,255,0.2); }
+</style>
+{% endblock %}
+
+{% block branding %}
+<div style="display: flex; align-items: center;">
+    <a href="{% url 'admin_dashboard' %}" class="dashboard-link-nav">
+        <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        Dashboard
+    </a>
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}" style="color: white; text-decoration: none;">
+            {{ site_header|default:_('Django administration') }}
+        </a>
+    </h1>
+</div>
+{% endblock %}
+

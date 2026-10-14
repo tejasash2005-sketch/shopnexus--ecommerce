@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}Order #{{ order.order_number }} - ShopNexus{% endblock %}
+{% block content %}
+<div class="page-header"><div class="container"><h1><i class="bi bi-receipt me-2"></i>Order #{{ order.order_number }}</h1></div></div>
+<div class="container py-5">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <!-- STATUS TRACKER -->
+      <div class="card-custom p-4 mb-4">
+        <h5 class="fw-bold mb-4">Order Status</h5>
+        {% with statuses="pending,confirmed,processing,shipped,out_for_delivery,delivered" %}
+        <div class="d-flex justify-content-between position-relative mb-2">
+          <div style="position:absolute;top:15px;left:10%;right:10%;height:3px;background:#e2e8f0;z-index:0"></div>
+          {% for s in statuses.split %}{% endfor %}
+          {% for s,label in order.STATUS_CHOICES %}
+          {% if s != 'cancelled' and s != 'returned' and s != 'refunded' %}
+          <div class="text-center" style="z-index:1;flex:1">
+            <div class="rounded-circle mx-auto d-flex align-items-center justify-content-center fw-bold" style="width:32px;height:32px;font-size:12px;{% if order.status == s or order.status == 'delivered' and forloop.counter <= 6 %}background:#FF6B35;color:#fff{% else %}background:#e2e8f0;color:#94a3b8{% endif %}">{{ forloop.counter }}</div>
+            <div style="font-size:10px;margin-top:5px;color:#64748b">{{ label }}</div>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endwith %}
+        <div class="mt-3 p-3 rounded-3" style="background:#f8fafc">
+          <span class="status-badge status-{{ order.status }} fs-6">{{ order.get_status_display }}</span>
+          <span class="text-muted ms-3 small">Updated {{ order.updated_at|date:"M d, Y H:i" }}</span>
+          {% if order.tracking_number %}<div class="mt-2"><strong>Tracking:</strong> {{ order.tracking_number }}</div>{% endif %}
+        </div>
+      </div>
+
+      <!-- ORDER ITEMS -->
+      <div class="card-custom p-4 mb-4">
+        <h5 class="fw-bold mb-4">Order Items</h5>
+        {% for item in order.items.all %}
+        <div class="d-flex gap-3 align-items-center py-3 {% if not forloop.last %}border-bottom{% endif %}">
+          <div style="width:70px;height:70px;flex-shrink:0;background:#f8fafc;border-radius:8px;display:flex;align-items:center;justify-content:center">
+            {% if item.product.primary_image %}
+            <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">
+            {% elif item.product.image_url %}
+            <img src="{{ item.product.image_url }}" alt="{{ item.product_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">
+            {% else %}
+            <span style="font-size:2rem">🛍️</span>
+            {% endif %}
+          </div>
+          <div class="flex-grow-1">
+            <div class="fw-bold">{{ item.product_name }}</div>
+            <div class="text-muted small">SKU: {{ item.product_sku }}</div>
+            <div class="text-muted small">Qty: {{ item.quantity }} × ₹{{ item.unit_price }}</div>
+          </div>
+          <div class="fw-bold text-danger">₹{{ item.total_price }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- TIMELINE -->
+      <div class="card-custom p-4">
+        <h5 class="fw-bold mb-4">Order Timeline</h5>
+        {% for history in order.status_history.all %}
+        <div class="d-flex gap-3 mb-3">
+          <div class="rounded-circle bg-danger d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;background:#FF6B35 !important">
+            <i class="bi bi-clock text-white" style="font-size:14px"></i>
+          </div>
+          <div>
+            <div class="fw-bold">{{ history.status|title }}</div>
+            {% if history.note %}<div class="text-muted small">{{ history.note }}</div>{% endif %}
+            <div class="text-muted" style="font-size:11px">{{ history.created_at|date:"M d, Y H:i" }}</div>
+          </div>
+        </div>
+        {% empty %}<p class="text-muted">No timeline events.</p>{% endfor %}
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- SUMMARY -->
+      <div class="card-custom p-4 mb-4">
+        <h5 class="fw-bold mb-4">Price Summary</h5>
+        <div class="d-flex justify-content-between mb-2"><span class="text-muted">Subtotal</span><span>₹{{ order.subtotal }}</span></div>
+        {% if order.discount_amount > 0 %}<div class="d-flex justify-content-between mb-2"><span class="text-muted">Discount {% if order.coupon_code %}({{ order.coupon_code }}){% endif %}</span><span class="text-success">-₹{{ order.discount_amount }}</span></div>{% endif %}
+        <div class="d-flex justify-content-between mb-2"><span class="text-muted">Shipping</span><span>{% if order.shipping_cost == 0 %}FREE{% else %}₹{{ order.shipping_cost }}{% endif %}</span></div>
+        <div class="d-flex justify-content-between mb-2"><span class="text-muted">Tax (GST)</span><span>₹{{ order.tax_amount|floatformat:2 }}</span></div>
+        <hr>
+        <div class="d-flex justify-content-between"><span class="fw-bold fs-5">Total</span><span class="fw-bold fs-5 text-danger">₹{{ order.total_amount }}</span></div>
+        <div class="mt-3">
+          <span class="status-badge status-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span>
+          <span class="text-muted small ms-2">via {{ order.get_payment_method_display }}</span>
+        </div>
+      </div>
+
+      <!-- SHIPPING -->
+      <div class="card-custom p-4 mb-4">
+        <h5 class="fw-bold mb-3">Shipping Address</h5>
+        <div class="fw-bold">{{ order.full_name }}</div>
+        <div class="text-muted small">{{ order.phone }}</div>
+        <div class="text-muted small mt-1">{{ order.address_line1 }}{% if order.address_line2 %}, {{ order.address_line2 }}{% endif %}</div>
+        <div class="text-muted small">{{ order.city }}, {{ order.state }} - {{ order.zip_code }}</div>
+        <div class="text-muted small">{{ order.country }}</div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="d-grid gap-2">
+        {% if order.status in 'pending,confirmed' %}
+        <a href="{% url 'cancel_order' order.pk %}" class="btn btn-outline-danger rounded-pill" onclick="return confirm('Are you sure you want to cancel?')"><i class="bi bi-x-circle me-1"></i>Cancel Order</a>
+        {% endif %}
+        {% if order.status == 'delivered' and not order.returns.exists %}
+        <a href="{% url 'return_request' order.pk %}" class="btn btn-outline-warning rounded-pill"><i class="bi bi-arrow-return-left me-1"></i>Request Return</a>
+        {% endif %}
+        {% if order.payment_status == 'pending' and order.payment_method == 'stripe' %}
+        <a href="{% url 'simulate_payment' order.pk %}" class="btn btn-danger rounded-pill" style="background:#FF6B35;border:none"><i class="bi bi-credit-card me-1"></i>Complete Payment</a>
+        {% endif %}
+        <a href="{% url 'order_list' %}" class="btn btn-outline-secondary rounded-pill">Back to Orders</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

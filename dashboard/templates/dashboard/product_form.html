@@ -1,0 +1,156 @@
+{% extends 'dashboard/base.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6 border-b flex justify-between items-center">
+            <h3 class="font-bold text-slate-800">{{ title }}</h3>
+            <a href="{% url 'db_store' %}" class="text-slate-400 hover:text-slate-600 transition text-sm font-bold">
+                <i class="fas fa-arrow-left mr-1"></i> Back to Store
+            </a>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0"><i class="fas fa-exclamation-circle text-red-500"></i></div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700 font-bold">Please correct the errors below.</p>
+                        <ul class="text-xs text-red-600 mt-1 list-disc list-inside">
+                            {% for field in form %}
+                                {% for error in field.errors %}<li>{{ field.label }}: {{ error }}</li>{% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column: Basic Info -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2">Product Name</label>
+                        {{ form.name }}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2">Category</label>
+                            {{ form.category }}
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2">Brand</label>
+                            {{ form.brand }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2">Short Description</label>
+                        {{ form.short_description }}
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2">Full Description</label>
+                        {{ form.description }}
+                    </div>
+                </div>
+
+                <!-- Right Column: Pricing & Images -->
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2">Regular Price (₹)</label>
+                            {{ form.price }}
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2">Discount Price (₹)</label>
+                            {{ form.discount_price }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2">Stock Level</label>
+                            {{ form.stock }}
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2">SKU (Optional)</label>
+                            {{ form.sku }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-2">Product Image (Upload from device)</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-200 border-dashed rounded-xl hover:border-blue-400 transition cursor-pointer relative bg-slate-50">
+                            <div class="space-y-1 text-center">
+                                <i class="fas fa-cloud-upload-alt text-3xl text-slate-300 mb-2"></i>
+                                <div class="flex text-sm text-slate-600">
+                                    <span class="relative cursor-pointer font-bold text-blue-600">Upload a file</span>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-[10px] text-slate-400 uppercase font-bold">PNG, JPG, GIF up to 10MB</p>
+                                {{ form.image }}
+                            </div>
+                        </div>
+                        {% if product and product.primary_image %}
+                        <div class="mt-4 flex items-center gap-4 p-3 bg-slate-50 rounded-xl border">
+                            <img src="{{ product.primary_image.image.url }}" class="w-12 h-12 rounded-lg object-cover">
+                            <div class="text-xs">
+                                <p class="font-bold text-slate-700">Current Image</p>
+                                <p class="text-slate-400">Will be replaced if you upload a new one</p>
+                            </div>
+                        </div>
+                        {% elif product and product.image_url %}
+                        <div class="mt-4 flex items-center gap-4 p-3 bg-slate-50 rounded-xl border">
+                            <img src="{{ product.image_url }}" class="w-12 h-12 rounded-lg object-cover">
+                            <div class="text-xs">
+                                <p class="font-bold text-slate-700">Current Image (URL)</p>
+                                <p class="text-slate-400">Will be replaced if you upload a new one</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="p-4 bg-blue-50 rounded-xl space-y-3">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            {{ form.is_active }}
+                            <span class="text-xs font-bold text-blue-800 uppercase">Active (Visible to users)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            {{ form.is_featured }}
+                            <span class="text-xs font-bold text-blue-800 uppercase">Featured on Homepage</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t flex justify-end gap-3">
+                <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-100">
+                    {% if product %}Update Product{% else %}Create Product{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        @apply w-full border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50;
+    }
+    input[type="file"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

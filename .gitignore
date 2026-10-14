@@ -214,6 +214,28 @@ tempCodeRunnerFile.py
 # Marimo
 marimo/_static/
 marimo/_lsp/
+# JetBrains / PyCharm (local settings, caches, chat history)
+.idea/
+
+# Django collected static files
+staticfiles/
+
+# User uploads (keep the folder, ignore the files)
+media/*
+!media/.gitkeep
+
+# Extra env files (keep a template)
+.env.*
+!.env.example
+
+# VS Code and other editors
+.vscode/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
 __marimo__/
 
 # Streamlit

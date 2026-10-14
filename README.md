@@ -1,149 +1,140 @@
-# 🛍️ ShopNexus — Full-Stack Django E-Commerce Platform
-**Final Year Project | Django + SQLite | Payment Integration**
+# 🛍️ ShopNexus
 
----
+A full-stack **e-commerce platform** built with Django. ShopNexus covers the complete shopping journey — product catalog, cart with coupons, checkout, order tracking, payments, reviews and wishlists — plus a custom admin dashboard with sales analytics.
 
-## 🚀 Quick Start
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-4.2%2B-092E20?logo=django&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?logo=bootstrap&logoColor=white)
+![Stripe](https://img.shields.io/badge/Payments-Stripe%20(demo)-635BFF?logo=stripe&logoColor=white)
+![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?logo=sqlite&logoColor=white)
+
+## ✨ Features
+
+**Storefront**
+- Product catalog with categories, brands, multi-image galleries and search
+- Session and user-based shopping cart with coupon codes
+- Checkout with saved or new shipping addresses
+- Order tracking with status timeline, cancellation and return requests
+- Star ratings and reviews with a "helpful" vote
+- Wishlist with AJAX toggle
+- Responsive Bootstrap 5 interface
+
+**Payments**
+- Cash on delivery, card (Stripe demo mode), UPI and net banking simulation
+- Payment history for each customer
+
+**Admin dashboard**
+- Product, category and brand management with image uploads
+- Order management with status updates and return approvals
+- User management and account activation controls
+- Review moderation and payment monitoring
+- Sales analytics, site visits, low-stock alerts and newsletter subscribers
+- Full Django admin with branded interface
+
+## 🧰 Tech Stack
+
+| Layer     | Technology                                |
+|-----------|-------------------------------------------|
+| Backend   | Python, Django 4.2+                       |
+| Database  | SQLite (swappable for PostgreSQL/MySQL)   |
+| Frontend  | Django templates, Bootstrap 5, Vanilla JS |
+| Auth      | Custom user model (`accounts.CustomUser`) |
+| Payments  | Stripe (demo mode)                        |
+| Media     | Pillow                                    |
+
+## 🚀 Getting Started
+
+### Quick start (Windows)
+
+Double-click `run_project.bat`. It installs dependencies, migrates, seeds data and starts the server.
+
+### Manual setup
 
 ```bash
-# 1. Install dependencies
-pip install django pillow stripe
+# 1. Clone the repository
+git clone https://github.com/<your-username>/shopnexus-django-ecommerce.git
+cd shopnexus-django-ecommerce
 
-# 2. Run migrations
+# 2. Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Apply migrations
 python manage.py migrate
 
-# 3. Seed sample data (products, users, coupons)
+# 5. Load sample data (products, users, coupons)
 python manage.py seed_data
 
-# 4. Start development server
+# 6. Start the server
 python manage.py runserver
-
-# 5. Visit: http://127.0.0.1:8000
 ```
 
----
+| URL                                  | Purpose                |
+|--------------------------------------|------------------------|
+| http://127.0.0.1:8000/               | Storefront             |
+| http://127.0.0.1:8000/dashboard/     | Custom admin dashboard |
+| http://127.0.0.1:8000/admin/         | Django admin           |
 
-## 🔐 Login Credentials
+## 🔑 Demo Credentials
 
-| Role  | Username  | Password  | Access |
-|-------|-----------|-----------|--------|
-| Admin | `admin`   | `admin123`| Full Admin Panel + Website |
-| User  | `testuser`| `user123` | Customer Portal |
+| Role     | Username   | Password   |
+|----------|------------|------------|
+| Admin    | `admin`    | `admin123` |
+| Customer | `testuser` | `user123`  |
 
-**Admin Panel:** http://127.0.0.1:8000/admin/
+> ⚠️ Demo accounts created by `seed_data`. Change or remove them before any real deployment.
 
----
+## 🎟️ Test Coupons
 
-## 📦 Tech Stack
+| Code        | Discount | Minimum Order |
+|-------------|----------|---------------|
+| `WELCOME20` | 20% off  | None          |
+| `FLAT100`   | ₹100 off | ₹500          |
+| `SAVE15`    | 15% off  | ₹1000         |
 
-| Layer        | Technology            |
-|--------------|-----------------------|
-| Backend      | Django 4.x (Python)   |
-| Database     | SQLite3               |
-| Frontend     | Bootstrap 5 + Vanilla JS |
-| Auth         | Django Custom Auth    |
-| Payments     | Stripe (simulated demo) |
-| Icons        | Bootstrap Icons       |
-| Fonts        | Google Poppins        |
-
----
-
-## 🗂️ Project Structure
+## 📁 Project Structure
 
 ```
-ecommerce_project/
-├── accounts/        # USER MODULE — Auth, Profile, Address
-├── store/           # STORE MODULE — Products, Categories, Cart
-├── orders/          # ORDER MODULE — Checkout, Order Tracking
-├── payments/        # PAYMENT MODULE — Stripe, COD, History
-├── reviews/         # REVIEW MODULE — Ratings, Helpfulness
-├── wishlist/        # WISHLIST MODULE — Save Products
-├── templates/       # All HTML templates
-├── static/css/      # Custom styles
-└── manage.py
+├── manage.py
+├── requirements.txt
+├── run_project.bat
+├── ecommerce_project/   # settings, root urls, wsgi/asgi
+├── store/               # products, categories, brands, cart, coupons
+├── accounts/            # custom user, profile, addresses
+├── orders/              # checkout, order tracking, returns
+├── payments/            # Stripe demo, payment simulation, history
+├── reviews/             # ratings and helpful votes
+├── wishlist/            # saved products
+├── analytics/           # site visits, sales reports, stock alerts
+├── dashboard/           # custom admin dashboard
+├── templates/           # HTML templates
+└── static/              # CSS and assets
 ```
 
----
+## 🗄️ Data Models
 
-## 🛠️ Product Management (Admin Side)
-- **Manual Product Addition**: Admins can manually add new products to the store via the dashboard.
-- **Device Upload**: Choose and upload product images and thumbnails directly from your local device.
-- **Comprehensive Details**: Apply all product details including pricing, stock, categories, brands, and descriptions.
-- **User Visibility**: Once added in the admin panel, products are immediately visible to users in the "All Products" section.
+`CustomUser` · `Address` · `Category` · `Brand` · `Product` · `ProductImage` · `Cart` · `CartItem` · `Coupon` · `Order` · `OrderItem` · `OrderStatusHistory` · `Return` · `Payment` · `Review` · `ReviewHelpful` · `Wishlist` · `SiteVisit` · `SalesReport` · `AdminActivityLog` · `NewsletterSubscriber` · `LowStockAlert`
 
----
+## 🔒 Before Deploying to Production
 
-## 🎯 6 Admin Modules
+- Move `SECRET_KEY`, `STRIPE_PUBLIC_KEY` and `STRIPE_SECRET_KEY` to environment variables
+- Set `DEBUG = False` and restrict `ALLOWED_HOSTS`
+- Remove the seeded demo accounts
+- Replace the console email backend with a real SMTP provider
+- Use PostgreSQL/MySQL and serve with Gunicorn + Nginx
+- Run `python manage.py collectstatic`
 
-| Module | Features |
-|--------|----------|
-| **1. Product Management** | Add/Edit products, images, pricing, stock, featured flags |
-| **2. Category & Brand** | Hierarchical categories, brand management, slugs |
-| **3. Order Management** | View all orders, update status, add tracking, admin notes |
-| **4. User Management** | View all users, edit profiles, manage permissions |
-| **5. Coupon Management** | Create coupons (% / fixed), expiry, usage limits |
-| **6. Review Moderation** | Approve/reject reviews, bulk actions, verified purchase badge |
+## 🛣️ Roadmap
 
----
+- [ ] Live Stripe payment integration
+- [ ] REST API (Django REST Framework)
+- [ ] Email order confirmations
+- [ ] Docker support
+- [ ] Automated test suite
 
-## 👤 6 User Modules
+## 📄 License
 
-| Module | Features |
-|--------|----------|
-| **1. Authentication** | Register, Login, Logout with session management |
-| **2. Profile** | View/edit profile, order stats, profile picture upload |
-| **3. Shopping Cart** | Add/update/remove items, coupon codes, free shipping threshold |
-| **4. Checkout & Orders** | Saved addresses, payment selection, order tracking, cancel/return |
-| **5. Payments** | COD, Stripe card, UPI, Net Banking (demo simulation) |
-| **6. Wishlist & Reviews** | Save products, write reviews with star ratings, mark helpful |
-
----
-
-## 💳 Coupon Codes (Test)
-
-| Code       | Discount | Min Order |
-|------------|----------|-----------|
-| `WELCOME20`| 20% off  | No minimum |
-| `FLAT100`  | ₹100 off | ₹500+ |
-| `SAVE15`   | 15% off  | ₹1000+ |
-
----
-
-## 🏗️ Database Models
-
-- **CustomUser** — Extended Django User with phone, address, profile picture
-- **Category** — Hierarchical with parent/child, slug auto-generation
-- **Brand** — Product brands with logos
-- **Product** — Full product with images, SKU, pricing, stock
-- **ProductImage** — Multi-image with primary flag
-- **Cart / CartItem** — Session + user cart, coupon support
-- **Coupon** — % and fixed discounts with expiry and usage tracking
-- **Order / OrderItem** — Complete order with address snapshot
-- **OrderStatusHistory** — Full audit trail of status changes
-- **Return** — Return request management
-- **Payment** — Gateway, transaction ID, status tracking
-- **Review / ReviewHelpful** — Star ratings with verified purchase
-- **Wishlist** — M2M product wishlist per user
-- **Address** — Multiple saved shipping addresses
-
----
-
-## 🌟 Key Features
-
-- ✅ Custom User Model with extended profile
-- ✅ Multi-image product gallery
-- ✅ Hierarchical categories
-- ✅ Cart with coupon discount engine
-- ✅ Checkout with saved/new address
-- ✅ Order status tracker with timeline
-- ✅ Payment simulation (Stripe demo mode)
-- ✅ Star rating system with verified purchase
-- ✅ Wishlist with AJAX toggle
-- ✅ Admin panel with rich inline editing
-- ✅ Full-text product search
-- ✅ Responsive Bootstrap 5 UI
-- ✅ Context processors for cart count & categories
-
----
-
-*Built for Final Year Project — ShopNexus E-Commerce Platform*
+Released under the [MIT License](LICENSE).
